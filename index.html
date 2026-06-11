@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KiT — 30 лет</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #2c3e50;
+            --secondary: #e74c3c;
+            --accent: #3498db;
+            --light: #ecf0f1;
+            --dark: #1a252f;
+            --gold: #f39c12;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--dark);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(26, 37, 47, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 15px 0;
+        }
+        
+        nav ul {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+        
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s;
+            padding: 5px 10px;
+        }
+        
+        nav a:hover {
+            color: var(--gold);
+        }
+        
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/96b41e3f-6547-408d-b01d-43ee4c9f9787_Kirill_glavnaya.jpg') center center;
+            background-size: cover;
+            filter: brightness(0.4);
+        }
+        
+        .hero-content {
+            position: relative;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .hero h1 {
+            font-size: clamp(4rem, 15vw, 10rem);
+            font-weight: 800;
+            letter-spacing: -5px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 0%, var(--gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero .subtitle {
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            font-weight: 300;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .hero .age {
+            display: inline-block;
+            font-size: 1.2rem;
+            background: var(--secondary);
+            padding: 10px 30px;
+            border-radius: 50px;
+            margin-top: 30px;
+            font-weight: 600;
+        }
+        
+        /* Section Styles */
+        section {
+            padding: 100px 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--gold);
+            border-radius: 2px;
+        }
+        
+        /* Secret Materials - Photo Gallery */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .gallery-item {
+            position: relative;
+            aspect-ratio: 1;
+            overflow: hidden;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .gallery-item:hover {
+            transform: scale(1.03);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+        
+        /* Map Section */
+        #map-section {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+            padding: 100px 20px;
+            max-width: 100%;
+        }
+        
+        #map-section .section-title {
+            max-width: 1400px;
+            margin: 0 auto 60px auto;
+        }
+        
+        .map-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        #map {
+            height: 500px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .map-legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+        
+        /* Achievements */
+        #achievements {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            max-width: 100%;
+            padding: 100px 20px;
+        }
+        
+        #achievements .section-title,
+        .achievements-grid,
+        .achievements-footer {
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .achievement-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .achievement-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255,255,255,0.1);
+            border-color: var(--gold);
+        }
+        
+        .achievement-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .achievement-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--gold);
+        }
+        
+        .achievement-card p {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+        
+        .achievements-footer {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 1.5rem;
+            color: var(--gold);
+            font-weight: 600;
+        }
+        
+        
+        /* Quotes Tabs */
+        .quotes-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .quotes-tab-btn {
+            background: rgba(255,255,255,0.07);
+            border: 2px solid rgba(243, 156, 18, 0.3);
+            border-radius: 30px;
+            color: #fff;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 10px 20px;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .quotes-tab-btn:hover {
+            background: rgba(243,156,18,0.2);
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .quotes-tab-btn.active {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: var(--dark);
+        }
+
+        .quotes-panel {
+            display: none;
+        }
+
+        .quotes-panel.active {
+            display: block;
+        }
+
+        .quotes-panel-title {
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            font-weight: 700;
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 35px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(243,156,18,0.3);
+        }
+
+        /* Quotes original */
+        #quotes {
+            background: var(--dark);
+        }
+        
+        .quotes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .quote-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+            border-radius: 15px;
+            padding: 30px;
+            position: relative;
+            border-left: 4px solid var(--gold);
+        }
+        
+        .quote-card::before {
+            content: '"';
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-size: 4rem;
+            color: var(--gold);
+            opacity: 0.3;
+            font-family: Georgia, serif;
+        }
+        
+        .quote-text {
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 15px;
+            padding-left: 30px;
+        }
+        
+        .quote-author {
+            text-align: right;
+            font-weight: 600;
+            color: var(--gold);
+            font-size: 0.9rem;
+        }
+        
+        /* Food Section */
+        #food {
+            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+            max-width: 100%;
+            padding: 100px 20px;
+        }
+        
+        #food .section-title,
+        .food-grid {
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .food-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+        }
+        
+        .food-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+        
+        .food-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .food-image {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+        }
+        
+        .food-content {
+            padding: 25px;
+        }
+        
+        .food-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+        
+        .food-desc {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        
+        .food-author {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            font-style: italic;
+        }
+        
+        /* Video Section */
+        #video {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+            text-align: center;
+            max-width: 100%;
+            padding: 100px 20px;
+        }
+        
+        #video .section-title {
+            max-width: 1400px;
+            margin: 0 auto 60px auto;
+        }
+        
+        .video-container {
+            max-width: 400px;
+            margin: 0 auto;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+        
+        .video-wrapper {
+            position: relative;
+            padding-top: 177.78%;
+            width: 100%;
+        }
+        
+        .video-wrapper iframe {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 50px 20px;
+            background: #0d0d0d;
+        }
+        
+        footer p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        
+        footer .heart {
+            color: var(--secondary);
+            font-size: 2rem;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .lightbox.active {
+            display: flex;
+        }
+        
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+        
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 3rem;
+            color: #fff;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .lightbox-close:hover {
+            color: var(--gold);
+        }
+        
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            color: #fff;
+            cursor: pointer;
+            padding: 20px;
+            transition: color 0.3s;
+        }
+        
+        .lightbox-nav:hover {
+            color: var(--gold);
+        }
+        
+        .lightbox-prev { left: 20px; }
+        .lightbox-next { right: 20px; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav ul {
+                gap: 15px;
+                padding: 0 10px;
+            }
+            
+            nav a {
+                font-size: 12px;
+            }
+            
+            .hero h1 {
+                letter-spacing: -2px;
+            }
+            
+            section {
+                padding: 60px 15px;
+            }
+            
+            .section-title {
+                margin-bottom: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <ul>
+            <li><a href="#home">Главная</a></li>
+            <li><a href="#gallery">Секретные материалы</a></li>
+            <li><a href="#map-section">Карта жизни</a></li>
+            <li><a href="#achievements">Достижения</a></li>
+            <li><a href="#quotes">О нём говорят</a></li>
+            <li><a href="#food">Кирилл и еда</a></li>
+            <li><a href="#video">Видеоприветы</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <h1>KiT</h1>
+            <p class="subtitle">Сайт про тебя. От тех, кто тебя любит</p>
+            <span class="age">🎂 30 лет</span>
+        </div>
+    </section>
+
+    <!-- Secret Materials Gallery -->
+    <section id="gallery">
+        <h2 class="section-title">📁 Секретные материалы</h2>
+        <div class="gallery">
+            <div class="gallery-item" onclick="openLightbox(0)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/6b6a8678-5d4a-4387-a6ac-d883552221a6_photo_01.jpg" alt="Фото 1" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(1)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/666a8ff7-ba01-4a0b-b3a0-c164ea87401a_photo_02.jpg" alt="Фото 2" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(2)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/9b123bb2-2dda-4e6c-9cb4-e7eda52d3e04_photo_03.jpg" alt="Фото 3" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(3)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/43c185d2-1061-4653-9c1d-908ef7ce46f4_photo_04.jpg" alt="Фото 4" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(4)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/a398688a-fd22-43d4-9d05-0e49f4cc5fbf_photo_05.jpg" alt="Фото 5" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(5)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/0ab91054-f9bd-4cea-adb7-90efcf2bd6e0_photo_06.jpg" alt="Фото 6" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(6)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/34603eac-d431-480d-8b0c-ab3112e1c32a_photo_07.jpg" alt="Фото 7" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(7)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/2f992227-6389-4a8c-8721-fe38811c5117_photo_08.jpg" alt="Фото 8" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(8)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/b7c2a5d4-4765-42e4-9ea5-bbabc1c66e8f_photo_09.jpg" alt="Фото 9" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(9)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/a5acd6ea-92da-4120-b353-d70e7a9fcc79_photo_10.jpg" alt="Фото 10" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(10)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/d90d4082-7bf5-4d25-b51d-9a9947aff8ac_photo_11.jpg" alt="Фото 11" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(11)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/493f759f-e98a-40cd-a208-83147da828a8_photo_12.jpg" alt="Фото 12" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(12)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/e1aa4dfa-b4e7-421a-9ca0-8d1031bb95e3_photo_13.jpg" alt="Фото 13" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(13)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/b6d8bec9-99f9-468e-b037-ee08fd9aa88f_photo_14.jpg" alt="Фото 14" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(14)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/0495132f-7b74-44ed-879f-1621dad3fb0e_photo_15.jpg" alt="Фото 15" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(15)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/e0007346-d01c-4092-868c-8e86608e16e0_photo_16.jpg" alt="Фото 16" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(16)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/cdb6492f-16b4-436c-8d60-7d09d7df53c0_photo_17.jpg" alt="Фото 17" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(17)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/3740fe01-300c-4bc3-829d-4b52829078f0_photo_18.jpg" alt="Фото 18" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(18)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/dc941995-d417-4487-a9c0-496c0f6d8332_photo_19.jpg" alt="Фото 19" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(19)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/4e5aab91-f8f9-46dd-9451-c9927d1a7680_photo_20.jpg" alt="Фото 20" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(20)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/aa60803e-d13f-4dc0-957d-30716219030f_photo_21.jpg" alt="Фото 21" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(21)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/d7e19f9c-b601-4c1f-9139-27b4b4144969_photo_22.jpg" alt="Фото 22" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(22)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/2d5bb3f0-98d2-47af-a978-32ea035e13bf_photo_23.jpg" alt="Фото 23" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(23)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/f1c74e77-78ec-4960-92be-e0013f704f5a_photo_24.jpg" alt="Фото 24" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(24)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/655ad1fc-3c0c-4d46-a455-10d97ee43e95_photo_25.jpg" alt="Фото 25" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(25)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/2954b8a3-3ea1-4cd8-a54d-42fdee77a6d2_photo_26.jpg" alt="Фото 26" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(26)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/69ee19bf-bb31-454a-86d3-1c668b63fd74_photo_27.jpg" alt="Фото 27" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(27)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/f981d0b1-bb9b-4ebf-8588-92713eeb9df3_photo_28.jpg" alt="Фото 28" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(28)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/97793318-b423-44ca-89cb-f7fd8abf2fe3_photo_29.jpg" alt="Фото 29" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(29)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/95169bf7-75d9-4e8d-b38a-3b23bcbcdc3b_photo_30.jpg" alt="Фото 30" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(30)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/428d0a58-6f05-4186-a627-ab90d3239954_photo_31.jpg" alt="Фото 31" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(31)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/81a56f85-4f40-4ee8-877a-9037caa3cb69_photo_32.jpg" alt="Фото 32" loading="lazy">
+            </div>
+            <div class="gallery-item" onclick="openLightbox(32)">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/593996bc-020c-4dbf-83e1-1bdb6ca23427_photo_33.jpg" alt="Фото 33" loading="lazy">
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section id="map-section">
+        <h2 class="section-title">🗺️ Карта жизни</h2>
+        <div class="map-container">
+            <div id="map"></div>
+            <div class="map-legend">
+                <div class="legend-item">🏠 Жильё в СПб</div>
+                <div class="legend-item">🏡 Токсово</div>
+                <div class="legend-item">✈️ Сербия</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Achievements -->
+    <section id="achievements">
+        <h2 class="section-title">🏆 Достижения</h2>
+        <div class="achievements-grid">
+            <div class="achievement-card">
+                <div class="achievement-icon">🎓</div>
+                <h3>Закончил ВШМ</h3>
+                <p>Благодаря интеллекту, силе воли и, возможно, Фольксвагену Поло</p>
+            </div>
+            <div class="achievement-card">
+                <div class="achievement-icon">🎖️</div>
+                <h3>Отслужил в армии</h3>
+                <p>И не поехал крышей (если только ненадолго)</p>
+            </div>
+            <div class="achievement-card">
+                <div class="achievement-icon">💼</div>
+                <h3>Операционный директор</h3>
+                <p>Достиг больших успехов в карьере!</p>
+            </div>
+            <div class="achievement-card">
+                <div class="achievement-icon">💍</div>
+                <h3>Женился</h3>
+                <p>Тоже благодаря интеллекту и силе воли</p>
+            </div>
+            <div class="achievement-card">
+                <div class="achievement-icon">🏠</div>
+                <h3>Построил дом</h3>
+                <p>Продал его и купил квартиру</p>
+            </div>
+            <div class="achievement-card">
+                <div class="achievement-icon">👶</div>
+                <h3>Растит дочь</h3>
+                <p>Лучший папа!</p>
+            </div>
+        </div>
+        <p class="achievements-footer">🌳 Остались только дерево и сын!</p>
+    </section>
+
+    <!-- Quotes -->
+        <section id="quotes">
+        <h2 class="section-title">💬 О нём говорят</h2>
+
+        <!-- Tab buttons -->
+        <div class="quotes-tabs">
+            <button class="quotes-tab-btn active" onclick="showQuotesTab(0)">😎 Три слова о Кирилле</button>
+            <button class="quotes-tab-btn" onclick="showQuotesTab(1)">🔄 В чём поменялся?</button>
+            <button class="quotes-tab-btn" onclick="showQuotesTab(2)">💎 В чём остался такой же?</button>
+            <button class="quotes-tab-btn" onclick="showQuotesTab(3)">😤 Что бесит?</button>
+            <button class="quotes-tab-btn" onclick="showQuotesTab(4)">🪄 Волшебная палочка</button>
+        </div>
+
+        <!-- Panel 1: Три слова -->
+        <div class="quotes-panel active" id="qpanel-0">
+            <p class="quotes-panel-title">Три слова о том, какой Кирилл</p>
+            <div class="quotes-grid">
+                <div class="quote-card"><p class="quote-text">Красивый, привлекательный и успешный</p><p class="quote-author">— Кирилл Петров</p></div>
+                <div class="quote-card"><p class="quote-text">Надежный, верный, сильный, умный и смешной</p><p class="quote-author">— Настя</p></div>
+                <div class="quote-card"><p class="quote-text">Решительный, самоотверженный, волевой</p><p class="quote-author">— Жаннуля</p></div>
+                <div class="quote-card"><p class="quote-text">Немногословный, отзывчивый, заботливый</p><p class="quote-author">— Маша</p></div>
+                <div class="quote-card"><p class="quote-text">Смешной, серьезный и ответственный</p><p class="quote-author">— Даша Пуд</p></div>
+                <div class="quote-card"><p class="quote-text">Семейный, педантичный, смешной</p><p class="quote-author">— Юля Попова</p></div>
+                <div class="quote-card"><p class="quote-text">Красивый, умный, сильный, любимый, надежный, нежный, с сильным мужским началом, юморист и приколист, очень аккуратный, самодостаточный, умеющий поддержать и помочь всегда, прекрасный организатор и продуман</p><p class="quote-author">— Мама</p></div>
+                <div class="quote-card"><p class="quote-text">Продолжение нашего рода</p><p class="quote-author">— Дедуля</p></div>
+                <div class="quote-card"><p class="quote-text">Немногословный, спокойный, ответственный</p><p class="quote-author">— Миша</p></div>
+                <div class="quote-card"><p class="quote-text">Спортивный, конкретный, целеустремленный</p><p class="quote-author">— Баба Ма</p></div>
+                <div class="quote-card"><p class="quote-text">Стойкий, добрый, заботливый</p><p class="quote-author">— Рома</p></div>
+                <div class="quote-card"><p class="quote-text">Целеустремленный, чрезвычайно честный, душевный / душа компании</p><p class="quote-author">— Никита</p></div>
+                <div class="quote-card"><p class="quote-text">Ответственный жизнерадостный кайфарик</p><p class="quote-author">— Алексей</p></div>
+                <div class="quote-card"><p class="quote-text">Серьезный, успешный, красавчик</p><p class="quote-author">— Лёнчик</p></div>
+                <div class="quote-card"><p class="quote-text">Надёжный. Если что-то будет угрожать, то защитит себя и своих близких. Думающий. Смотрит в себя, анализирует, рефлексирует. И этого стало больше за время нашего знакомства.</p><p class="quote-author">— Тесть</p></div>
+                <div class="quote-card"><p class="quote-text">Разный, умный, ценностный</p><p class="quote-author">— Тёща</p></div>
+                <div class="quote-card"><p class="quote-text">Ответственный, спортивный, веселый</p><p class="quote-author">— Антон Щ</p></div>
+            </div>
+        </div>
+
+        <!-- Panel 2: Поменялся -->
+        <div class="quotes-panel" id="qpanel-1">
+            <p class="quotes-panel-title">В чём Кирилл поменялся?</p>
+            <div class="quotes-grid">
+                <div class="quote-card"><p class="quote-text">Стал спокойнее, мягче, увереннее, мудрее</p><p class="quote-author">— Настя</p></div>
+                <div class="quote-card"><p class="quote-text">Стал более мудрым</p><p class="quote-author">— Даша Пуд</p></div>
+                <div class="quote-card"><p class="quote-text">В размере рубашки</p><p class="quote-author">— Юля Попова</p></div>
+                <div class="quote-card"><p class="quote-text">Как-то очень незаметно и быстро вырос… Я не понимаю, как промчались 30 лет…</p><p class="quote-author">— Мама</p></div>
+                <div class="quote-card"><p class="quote-text">Поменялся в отношении к ответственности — стал надежной опорой для своей семьи</p><p class="quote-author">— Жаннуля</p></div>
+                <div class="quote-card"><p class="quote-text">Стал более общительным, доброжелательным, открытым и мужественным</p><p class="quote-author">— Миша</p></div>
+                <div class="quote-card"><p class="quote-text">За годы нашего знакомства Кирилл стал более общительным, а также я узнала, что он оказался крутым отцом</p><p class="quote-author">— Маша</p></div>
+                <div class="quote-card"><p class="quote-text">За годы знакомства стал увереннее, мягче, коммуникабельнее</p><p class="quote-author">— Баба Ма</p></div>
+                <div class="quote-card"><p class="quote-text">Получил среднее образование</p><p class="quote-author">— Рома</p></div>
+                <div class="quote-card"><p class="quote-text">Перестал использовать микронаушник</p><p class="quote-author">— Никита</p></div>
+                <div class="quote-card"><p class="quote-text">Стал настоящим семьянином</p><p class="quote-author">— Алексей</p></div>
+                <div class="quote-card"><p class="quote-text">Стал более ответственным, семейным человеком</p><p class="quote-author">— Лёнчик</p></div>
+                <div class="quote-card"><p class="quote-text">Кирилл поменялся и сильно. За время нашего знакомства он стал мужем, отцом, закончил учебу и стал руководителем, но самое главное, что он повзрослел и стал в хорошем смысле более критичным к себе — думающим, рефлексирующим, делающим то, что улучшает его жизнь. Стал более взрослым и осознанным</p><p class="quote-author">— Тёща</p></div>
+                <div class="quote-card"><p class="quote-text">Стал лучше фармить (в лол и в жизни)</p><p class="quote-author">— Антон Щ</p></div>
+            </div>
+        </div>
+
+        <!-- Panel 3: Остался такой же -->
+        <div class="quotes-panel" id="qpanel-2">
+            <p class="quotes-panel-title">А в чём остался такой же?</p>
+            <div class="quotes-grid">
+                <div class="quote-card"><p class="quote-text">Такой же приветливый</p><p class="quote-author">— Даша Пуд</p></div>
+                <div class="quote-card"><p class="quote-text">Все такой же смешной</p><p class="quote-author">— Юля Попова</p></div>
+                <div class="quote-card"><p class="quote-text">Все тот же юмор (иногда черный), по-прежнему любит отдыхать и умеет расслабляться</p><p class="quote-author">— Настя</p></div>
+                <div class="quote-card"><p class="quote-text">Любимый сыном, который очень внимательно и сосредоточенно смотрит на этот мир и людей вокруг</p><p class="quote-author">— Мама</p></div>
+                <div class="quote-card"><p class="quote-text">Остался прежним в своих ценностях и убеждениях — семья, честность; в привычках — увлечении волейболом и походами в спорт. клуб.; отношением с близкими и друзьями</p><p class="quote-author">— Жаннуля</p></div>
+                <div class="quote-card"><p class="quote-text">Остался по-прежнему отзывчивым и добродушным</p><p class="quote-author">— Маша</p></div>
+                <div class="quote-card"><p class="quote-text">Человек слова — «мужик сказал — мужик сделал»</p><p class="quote-author">— Баба Ма</p></div>
+                <div class="quote-card"><p class="quote-text">Остался тем же весельчаком и приятным, естественным человеком без пафоса, что и в годы нашего знакомства и начала дружбы</p><p class="quote-author">— Алексей</p></div>
+                <div class="quote-card"><p class="quote-text">Такой же легкий на подъем, с ним можно обсудить и серьезные темы и посмеяться над тупыми шутками</p><p class="quote-author">— Лёнчик</p></div>
+                <div class="quote-card"><p class="quote-text">Такой же симпатичный молодой человек, любящий детей, собак и котов, особенно рыжих. Такой же отзывчивый и умелый (руки на месте!)</p><p class="quote-author">— Тёща</p></div>
+                <div class="quote-card"><p class="quote-text">Везде спрогрессировал)</p><p class="quote-author">— Антон Щ</p></div>
+            </div>
+        </div>
+
+        <!-- Panel 4: Что бесит -->
+        <div class="quotes-panel" id="qpanel-3">
+            <p class="quotes-panel-title">Что бесит Кирилла?</p>
+            <div class="quotes-grid">
+                <div class="quote-card"><p class="quote-text">Крошки на полу у нас дома</p><p class="quote-author">— Юля Попова</p></div>
+                <div class="quote-card"><p class="quote-text">Беспорядок :)</p><p class="quote-author">— Мама</p></div>
+                <div class="quote-card"><p class="quote-text">Когда тупят</p><p class="quote-author">— Настя</p></div>
+                <div class="quote-card"><p class="quote-text">Думаю, что Кирилла бесит, когда с ним долго и занудно разговаривают</p><p class="quote-author">— Маша</p></div>
+                <div class="quote-card"><p class="quote-text">Что Сириус Блэк крестный Гарри Поттера</p><p class="quote-author">— Рома</p></div>
+                <div class="quote-card"><p class="quote-text">Когда не дают списать на экзамене</p><p class="quote-author">— Никита</p></div>
+                <div class="quote-card"><p class="quote-text">Когда всё вокруг против него</p><p class="quote-author">— Алексей</p></div>
+                <div class="quote-card"><p class="quote-text">Пыль на полу в нашей квартире</p><p class="quote-author">— Лёнчик</p></div>
+            </div>
+        </div>
+
+        <!-- Panel 5: Волшебная палочка -->
+        <div class="quotes-panel" id="qpanel-4">
+            <p class="quotes-panel-title">Если бы у тебя была волшебная палочка — что бы ты для него сделал(а)?</p>
+            <div class="quotes-grid">
+                <div class="quote-card"><p class="quote-text">Я бы подарила ему эту волшебную палочку</p><p class="quote-author">— Мама</p></div>
+                <div class="quote-card"><p class="quote-text">Всегда чистые полы дома</p><p class="quote-author">— Юля</p></div>
+                <div class="quote-card"><p class="quote-text">Безлимит денег))</p><p class="quote-author">— Настя</p></div>
+                <div class="quote-card"><p class="quote-text">По мановению волшебной палочки отправила бы Кирилла, Настюшу и Асеньку на отдых в страну, которую они мечтают посетить, на месяц на Super All Inclusive в самый лучший отель</p><p class="quote-author">— Жаннуля</p></div>
+                <div class="quote-card"><p class="quote-text">Подарил бы большую трехэтажную виллу, в любом месте… Ну или остров</p><p class="quote-author">— Миша</p></div>
+                <div class="quote-card"><p class="quote-text">Если бы у меня была волшебная палочка, то я спросила бы Кирилла, что он хочет, а потом исполнила бы его желание</p><p class="quote-author">— Маша</p></div>
+                <div class="quote-card"><p class="quote-text">Если бы была волшебная палочка, то наволшебничала бы ему здоровья на долгие долгие годы. Остальное он добьется всего сам</p><p class="quote-author">— Баба Ма</p></div>
+                <div class="quote-card"><p class="quote-text">Подарил бы ему волшебную палочку</p><p class="quote-author">— Рома</p></div>
+                <div class="quote-card"><p class="quote-text">Вернулся на 20 лет назад, хотя бы на 1 день</p><p class="quote-author">— Никита</p></div>
+                <div class="quote-card"><p class="quote-text">Чтобы удача всегда была на его стороне</p><p class="quote-author">— Алексей</p></div>
+                <div class="quote-card"><p class="quote-text">Гору денег и безлимитное здоровье</p><p class="quote-author">— Лёнчик</p></div>
+                <div class="quote-card"><p class="quote-text">Чтобы все его тревоги унесли единороги</p><p class="quote-author">— Тёща</p></div>
+                <div class="quote-card"><p class="quote-text">Наколдовал бы ему ещё 3 волшебные палочки</p><p class="quote-author">— Антон Щ</p></div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Food Section -->
+    <section id="food">
+        <h2 class="section-title">🍽️ Кирилл и еда</h2>
+        <div class="food-grid">
+            <div class="food-card">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/b05e9c78-610e-44ab-9c5f-ecfaab8c6469_food_08.png" alt="Ребрышки" class="food-image" loading="lazy">
+                <div class="food-content">
+                    <h3 class="food-name">Ребрышки</h3>
+                    <p class="food-desc">Не любит мясо на кости, но все равно ест с удовольствием</p>
+                    <p class="food-author">© Юля Попова</p>
+                </div>
+            </div>
+            <div class="food-card">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/761d301f-b4af-4d95-9eee-a3e534ebb092_food_13.png" alt="Оливье" class="food-image" loading="lazy">
+                <div class="food-content">
+                    <h3 class="food-name">Оливье</h3>
+                    <p class="food-desc">Кирилл очень многогранный, в нем есть много вкусных и прекрасных компонентов</p>
+                    <p class="food-author">© Мама</p>
+                </div>
+            </div>
+            <div class="food-card">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/6049e7fe-c6c7-4738-bd16-28e1d8a1b145_food_04.png" alt="Муравейник" class="food-image" loading="lazy">
+                <div class="food-content">
+                    <h3 class="food-name">Муравейник</h3>
+                    <p class="food-desc">Трудолюбивый и методичный, много работает, чтобы построить красивый дом</p>
+                    <p class="food-author">© Мама</p>
+                </div>
+            </div>
+            <div class="food-card">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/88f6e25d-29c0-4132-acb2-8a1609d78743_food_09.png" alt="Картошка с сосисками" class="food-image" loading="lazy">
+                <div class="food-content">
+                    <h3 class="food-name">Картошка с сосисками</h3>
+                    <p class="food-desc">Что-то мое домашнее и всегда вкусное</p>
+                    <p class="food-author">© Настя</p>
+                </div>
+            </div>
+            <div class="food-card">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/91a65189-50de-4c87-b9ca-eae7dfd9361f_food_01.png" alt="Стейк" class="food-image" loading="lazy">
+                <div class="food-content">
+                    <h3 class="food-name">Стейк</h3>
+                    <p class="food-desc">Мощный и стабильный</p>
+                    <p class="food-author">© Жаннуля</p>
+                </div>
+            </div>
+            <div class="food-card">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/b6526d16-1058-4f17-b02b-1b28261298ce_food_03.png" alt="Вишневое пиво" class="food-image" loading="lazy">
+                <div class="food-content">
+                    <h3 class="food-name">Вишневое пиво</h3>
+                    <p class="food-desc">Конкретная ассоциация</p>
+                    <p class="food-author">© Миша</p>
+                </div>
+            </div>
+            <div class="food-card">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/5b2f4c90-e485-4419-b567-794741f4b7cc_food_11.png" alt="Пирожок с начинкой" class="food-image" loading="lazy">
+                <div class="food-content">
+                    <h3 class="food-name">Пирожок с начинкой</h3>
+                    <p class="food-desc">Спокойный снаружи, с глубоким внутренним миром внутри</p>
+                    <p class="food-author">© Маша</p>
+                </div>
+            </div>
+            <div class="food-card">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/724c6800-0486-4538-a545-4a2038607e0c_food_02.png" alt="Паста Карбонара" class="food-image" loading="lazy">
+                <div class="food-content">
+                    <h3 class="food-name">Паста Карбонара</h3>
+                    <p class="food-desc">Не так прост, как кажется</p>
+                    <p class="food-author">© Баба Ма</p>
+                </div>
+            </div>
+            <div class="food-card">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/15f244a0-ca76-41b7-852e-ee6a16cffea7_food_10.png" alt="Воппер" class="food-image" loading="lazy">
+                <div class="food-content">
+                    <h3 class="food-name">Воппер</h3>
+                    <p class="food-desc">Потому что он дикий царь</p>
+                    <p class="food-author">© Никита</p>
+                </div>
+            </div>
+            <div class="food-card">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/91e5dea5-ae02-4f1a-b8d2-dc6593e977b2_food_06.png" alt="Котлета по-киевски" class="food-image" loading="lazy">
+                <div class="food-content">
+                    <h3 class="food-name">Котлета по-киевски</h3>
+                    <p class="food-desc">С виду стойкий кремень, но внутри добрый и эмпатичный</p>
+                    <p class="food-author">© Алексей</p>
+                </div>
+            </div>
+            <div class="food-card">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/3a9ccd1d-17fc-43bf-9887-394f325c1160_food_07.png" alt="Манго" class="food-image" loading="lazy">
+                <div class="food-content">
+                    <h3 class="food-name">Манго</h3>
+                    <p class="food-desc">Сдержанный, но сочный и яркий изнутри</p>
+                    <p class="food-author">© Тесть</p>
+                </div>
+            </div>
+            <div class="food-card">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/350b1d02-cbe1-4bbe-92e6-83a53200d10e_food_05.png" alt="Зеленый салат" class="food-image" loading="lazy">
+                <div class="food-content">
+                    <h3 class="food-name">Зеленый салат</h3>
+                    <p class="food-desc">Вроде простой, но сложносочиненный и изысканный</p>
+                    <p class="food-author">© Тёща</p>
+                </div>
+            </div>
+            <div class="food-card">
+                <img src="https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/ca5891ad-7075-439b-87bc-a61f16607d03_food_12.png" alt="Бургер" class="food-image" loading="lazy">
+                <div class="food-content">
+                    <h3 class="food-name">Бургер</h3>
+                    <p class="food-desc">Многослойность, к которой не подступишься без подготовки</p>
+                    <p class="food-author">© Рома</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Section -->
+    <section id="video">
+        <h2 class="section-title">🎬 Видеоприветы</h2>
+        <div class="video-container">
+            <div class="video-wrapper">
+                <iframe src="https://kinescope.io/embed/v77T7YTmY7PyeFXWS2K9SE" 
+                        allow="autoplay; fullscreen; picture-in-picture; encrypted-media; gyroscope; accelerometer; clipboard-write;" 
+                        frameborder="0" 
+                        allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>С любовью к самому лучшему человеку</p>
+        <div class="heart">❤️</div>
+        <p style="margin-top: 20px; opacity: 0.5; font-size: 0.9rem;">KiT — 30 лет © 2026</p>
+    </footer>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <span class="lightbox-nav lightbox-prev" onclick="changeSlide(-1)">&#10094;</span>
+        <img src="" alt="" id="lightbox-img">
+        <span class="lightbox-nav lightbox-next" onclick="changeSlide(1)">&#10095;</span>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Map initialization
+        const map = L.map('map').setView([59.95, 30.3], 10);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+        
+        // Locations
+        const locations = [
+            { name: "ул. Шаврова", lat: 60.0089, lon: 30.2439, icon: "🏠" },
+            { name: "Байконурская ул.", lat: 60.0025, lon: 30.2567, icon: "🏠" },
+            { name: "Богатырский 9", lat: 60.0033, lon: 30.2847, icon: "🏠" },
+            { name: "Богатырский 25", lat: 60.0019, lon: 30.2756, icon: "🏠" },
+            { name: "Репищева 10", lat: 60.0167, lon: 30.2564, icon: "🏠" },
+            { name: "Суботица, Сербия", lat: 46.1, lon: 19.6658, icon: "✈️" },
+            { name: "Просвещения 99", lat: 60.0523, lon: 30.3328, icon: "🏠" },
+            { name: "СПб шоссе, 109", lat: 59.8344, lon: 30.1383, icon: "🏠" },
+            { name: "Южная дорога, 14", lat: 59.9697, lon: 30.2622, icon: "🏠" },
+            { name: "Токсово", lat: 60.1544, lon: 30.5231, icon: "🏡" },
+            { name: "Богатырский 7/4", lat: 60.0042, lon: 30.2889, icon: "🏠" },
+            { name: "Королёва 23", lat: 60.0147, lon: 30.2672, icon: "🏠" },
+        ];
+        
+        locations.forEach(loc => {
+            const marker = L.marker([loc.lat, loc.lon]).addTo(map);
+            marker.bindPopup(`<b>${loc.icon} ${loc.name}</b>`);
+        });
+        
+        // Fit bounds to show all markers
+        const group = L.featureGroup(locations.map(loc => L.marker([loc.lat, loc.lon])));
+        map.fitBounds(group.getBounds().pad(0.1));
+        
+        // Lightbox functionality
+        const galleryImages = [
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/6b6a8678-5d4a-4387-a6ac-d883552221a6_photo_01.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/666a8ff7-ba01-4a0b-b3a0-c164ea87401a_photo_02.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/9b123bb2-2dda-4e6c-9cb4-e7eda52d3e04_photo_03.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/43c185d2-1061-4653-9c1d-908ef7ce46f4_photo_04.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/a398688a-fd22-43d4-9d05-0e49f4cc5fbf_photo_05.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/0ab91054-f9bd-4cea-adb7-90efcf2bd6e0_photo_06.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/34603eac-d431-480d-8b0c-ab3112e1c32a_photo_07.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/2f992227-6389-4a8c-8721-fe38811c5117_photo_08.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/b7c2a5d4-4765-42e4-9ea5-bbabc1c66e8f_photo_09.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/a5acd6ea-92da-4120-b353-d70e7a9fcc79_photo_10.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/d90d4082-7bf5-4d25-b51d-9a9947aff8ac_photo_11.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/493f759f-e98a-40cd-a208-83147da828a8_photo_12.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/e1aa4dfa-b4e7-421a-9ca0-8d1031bb95e3_photo_13.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/b6d8bec9-99f9-468e-b037-ee08fd9aa88f_photo_14.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/0495132f-7b74-44ed-879f-1621dad3fb0e_photo_15.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/e0007346-d01c-4092-868c-8e86608e16e0_photo_16.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/cdb6492f-16b4-436c-8d60-7d09d7df53c0_photo_17.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/3740fe01-300c-4bc3-829d-4b52829078f0_photo_18.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/dc941995-d417-4487-a9c0-496c0f6d8332_photo_19.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/4e5aab91-f8f9-46dd-9451-c9927d1a7680_photo_20.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/aa60803e-d13f-4dc0-957d-30716219030f_photo_21.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/d7e19f9c-b601-4c1f-9139-27b4b4144969_photo_22.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/2d5bb3f0-98d2-47af-a978-32ea035e13bf_photo_23.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/f1c74e77-78ec-4960-92be-e0013f704f5a_photo_24.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/655ad1fc-3c0c-4d46-a455-10d97ee43e95_photo_25.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/2954b8a3-3ea1-4cd8-a54d-42fdee77a6d2_photo_26.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/69ee19bf-bb31-454a-86d3-1c668b63fd74_photo_27.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/f981d0b1-bb9b-4ebf-8588-92713eeb9df3_photo_28.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/97793318-b423-44ca-89cb-f7fd8abf2fe3_photo_29.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/95169bf7-75d9-4e8d-b38a-3b23bcbcdc3b_photo_30.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/428d0a58-6f05-4186-a627-ab90d3239954_photo_31.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/81a56f85-4f40-4ee8-877a-9037caa3cb69_photo_32.jpg",
+            "https://284baef4-3d14-4ca5-8247-4811f0d6b14b.selstorage.ru/593996bc-020c-4dbf-83e1-1bdb6ca23427_photo_33.jpg"
+        ];
+        
+        let currentSlide = 0;
+        
+        function openLightbox(index) {
+            currentSlide = index;
+            document.getElementById('lightbox-img').src = galleryImages[currentSlide];
+            document.getElementById('lightbox').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            if (currentSlide < 0) currentSlide = galleryImages.length - 1;
+            if (currentSlide >= galleryImages.length) currentSlide = 0;
+            document.getElementById('lightbox-img').src = galleryImages[currentSlide];
+        }
+        
+        // Close lightbox on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+        });
+        
+        // Close lightbox when clicking outside image
+        document.getElementById('lightbox').addEventListener('click', (e) => {
+            if (e.target.id === 'lightbox') closeLightbox();
+        });
+        
+        // Smooth scroll for navigation
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    </script>
+
+    <script>
+        function showQuotesTab(index) {
+            document.querySelectorAll('.quotes-panel').forEach(function(panel) {
+                panel.classList.remove('active');
+            });
+            document.querySelectorAll('.quotes-tab-btn').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            document.getElementById('qpanel-' + index).classList.add('active');
+            document.querySelectorAll('.quotes-tab-btn')[index].classList.add('active');
+        }
+    </script>
+</body>
+</html>
